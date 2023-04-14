@@ -155,8 +155,10 @@ class _DisplayImagesState extends State<DisplayImages>
                                 height: 25,
                                 padding: EdgeInsets.all(5),
                                 child: LoadingIndicator(
-                                    indicatorType:
-                                        Indicator.ballScaleRippleMultiple))
+                                  indicatorType:
+                                      Indicator.ballScaleRippleMultiple,
+                                  colors: [Theme.of(context).indicatorColor],
+                                ))
                             : Text(
                                 'Save',
                                 style: TextStyle(

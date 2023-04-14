@@ -55,6 +55,9 @@ class _ImageGeneratorState extends State<ImageGenerator>
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
+          iconTheme: IconThemeData(
+            color: consts.whiteOrBlack(),
+          ),
           centerTitle: true,
           title: Text('Image Generator',
               style: TextStyle(color: consts.whiteOrBlack())),
@@ -111,7 +114,9 @@ class _ImageGeneratorState extends State<ImageGenerator>
                           height: 50,
                           padding: EdgeInsets.all(5),
                           child: LoadingIndicator(
-                              indicatorType: Indicator.ballScaleRipple))
+                            indicatorType: Indicator.ballScaleRipple,
+                            colors: [Theme.of(context).indicatorColor],
+                          ))
                       : Container(
                           margin: EdgeInsets.all(10),
                           child: ElevatedButton(
@@ -156,7 +161,7 @@ class _ImageGeneratorState extends State<ImageGenerator>
                               GeneratedImage result =
                                   await generateImageForTest(imageCount);
                               /*generateImage(prompt,
-                                    n: imageCount, keyIndex: 1);*/
+                                      n: imageCount, keyIndex: 2);*/
 
                               setState(() {
                                 generating = false;
