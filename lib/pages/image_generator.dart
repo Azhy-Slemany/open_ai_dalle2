@@ -7,6 +7,7 @@ import 'package:open_ai_dalle2/image.dart';
 import 'package:open_ai_dalle2/models/generated_image.dart';
 import 'package:open_ai_dalle2/pages/display_images.dart';
 import 'package:open_ai_dalle2/requests.dart';
+import 'package:open_ai_dalle2/constants.dart' as consts;
 
 class ImageGenerator extends StatefulWidget {
   ImageGenerator();
@@ -52,7 +53,14 @@ class _ImageGeneratorState extends State<ImageGenerator>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Image Generator')),
+        backgroundColor: Theme.of(context).backgroundColor,
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('Image Generator',
+              style: TextStyle(color: consts.whiteOrBlack())),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+        ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -95,40 +103,44 @@ class _ImageGeneratorState extends State<ImageGenerator>
                     ],
                   ),
                 ),
-                generating
-                    ? Container(
-                        height: 60,
-                        padding: EdgeInsets.all(5),
-                        child: LoadingIndicator(
-                            indicatorType: Indicator.ballScaleRipple))
-                    : Container(
-                        padding: EdgeInsets.all(5),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final prompt = _promptController.text;
+                Container(
+                  height: 60,
+                  margin: EdgeInsets.only(top: 5, bottom: 16),
+                  child: generating
+                      ? Container(
+                          height: 50,
+                          padding: EdgeInsets.all(5),
+                          child: LoadingIndicator(
+                              indicatorType: Indicator.ballScaleRipple))
+                      : Container(
+                          margin: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final prompt = _promptController.text;
 
-                            //validate both prompt and imageCount to check if they follow the rules
-                            if (prompt.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Prompt cannot be empty')));
-                              return;
-                            }
+                              //validate both prompt and imageCount to check if they follow the rules
+                              if (prompt.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Prompt cannot be empty')));
+                                return;
+                              }
 
-                            if (prompt.length >= 1000) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      'Prompt cannot be more than 1000 characters')));
-                              return;
-                            }
+                              if (prompt.length >= 1000) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        'Prompt cannot be more than 1000 characters')));
+                                return;
+                              }
 
-                            /*if (imageCount == null) {
+                              /*if (imageCount == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                     content: Text(
                                         'Number of images must be an integer')));
                                 return;
                               }
-
+                
                               if (imageCount < 1 || imageCount > 10) {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                     content: Text(
@@ -136,22 +148,22 @@ class _ImageGeneratorState extends State<ImageGenerator>
                                 return;
                               }*/
 
-                            setState(() {
-                              generating = true;
-                              placeholders = Images.getRandomPlaceholders();
-                            });
+                              setState(() {
+                                generating = true;
+                                placeholders = Images.getRandomPlaceholders();
+                              });
 
-                            GeneratedImage result =
-                                await generateImageForTest(imageCount);
-                            /*generateImage(prompt,
+                              GeneratedImage result =
+                                  await generateImageForTest(imageCount);
+                              /*generateImage(prompt,
                                     n: imageCount, keyIndex: 1);*/
 
-                            setState(() {
-                              generating = false;
-                              this.result = result;
-                            });
+                              setState(() {
+                                generating = false;
+                                this.result = result;
+                              });
 
-                            /*if (result.isCreated) {
+                              /*if (result.isCreated) {
                               print('succeeded');
                               print(result.images);
                             } else {
@@ -159,88 +171,85 @@ class _ImageGeneratorState extends State<ImageGenerator>
                               print(result.error);
                             }*/
 
-                            if (!result.isCreated) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      'Failed to generate images, ${result.error}}')));
-                              return;
-                            }
-                          },
-                          child: Text('Generate Image'),
+                              if (!result.isCreated) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        'Failed to generate images, ${result.error}}')));
+                                return;
+                              }
+                            },
+                            child: Text('Generate Image'),
+                          ),
                         ),
-                      ),
+                ),
               ],
             ),
             result == null
-                ? SizedBox(height: 250)
-                : InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DisplayImages(
-                                generatedImage: result!,
-                                prompt: _promptController.text,
-                              )));
-                    },
-                    child: Card(
-                      child: SizedBox(
-                          height: 250,
-                          child: Hero(
-                            tag: 'imagesGridview',
-                            child: GridView.builder(
-                              controller: _scrollController,
-                              physics: BouncingScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: result!.images.length,
-                              itemBuilder: (context, index) =>
-                                  CachedNetworkImage(
-                                      imageUrl: result!.images[index],
-                                      fit: BoxFit.cover,
-                                      progressIndicatorBuilder: (context, url,
-                                              progress) =>
-                                          Container(
-                                            decoration: BoxDecoration(
-                                                border: Border(
-                                                    right: BorderSide(
-                                                        color: Colors.black))),
-                                            child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                      height: 150,
-                                                      width: 150,
-                                                      padding:
-                                                          EdgeInsets.all(20),
-                                                      child: FadeTransition(
-                                                        opacity:
-                                                            placeholderAnimationController,
-                                                        child: Image.asset(
-                                                          placeholders![index],
-                                                        ),
-                                                      )),
-                                                  Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 2),
-                                                    child:
-                                                        LinearProgressIndicator(
-                                                      value: progress.progress,
-                                                      minHeight: 0.9,
-                                                      color: Colors.black,
-                                                      backgroundColor:
-                                                          Colors.grey,
-                                                    ),
+                ? Expanded(child: SizedBox())
+                : Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (!generating)
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => DisplayImages(
+                                  generatedImage: result!,
+                                  placeholders: placeholders,
+                                  prompt: _promptController.text,
+                                  scrollValue: _scrollController.offset)));
+                      },
+                      child: Card(
+                        child: Hero(
+                          tag: 'imagesGridview',
+                          child: GridView.builder(
+                            controller: _scrollController,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: result!.images.length,
+                            itemBuilder: (context, index) => CachedNetworkImage(
+                                imageUrl: result!.images[index],
+                                fit: BoxFit.cover,
+                                progressIndicatorBuilder: (context, url,
+                                        progress) =>
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          border: Border(
+                                              right: BorderSide(
+                                                  color: Colors.black))),
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                                height: 150,
+                                                width: 150,
+                                                padding: EdgeInsets.all(20),
+                                                child: FadeTransition(
+                                                  opacity:
+                                                      placeholderAnimationController,
+                                                  child: Image.asset(
+                                                    placeholders![index],
                                                   ),
-                                                ]),
-                                          )),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1,
-                              ),
+                                                )),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 2),
+                                              child: LinearProgressIndicator(
+                                                value: progress.progress,
+                                                minHeight: 0.9,
+                                                color: Colors.black,
+                                                backgroundColor: Colors.grey,
+                                              ),
+                                            ),
+                                          ]),
+                                    )),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 1,
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ),
                   )
           ],

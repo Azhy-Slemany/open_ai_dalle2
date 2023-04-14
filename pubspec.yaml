@@ -33,6 +33,7 @@ dependencies:
   path:
   image_gallery_saver:
   permission_handler:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

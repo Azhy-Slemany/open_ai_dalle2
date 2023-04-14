@@ -8,7 +8,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     //precache all the images
@@ -17,8 +16,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Image Generator',
       theme: ThemeData(
+        brightness: Brightness.light,
         primarySwatch: Colors.indigo,
+        textTheme: Theme.of(context)
+            .textTheme
+            .apply(bodyColor: Colors.black, displayColor: Colors.black),
+        backgroundColor: Color.fromRGBO(253, 252, 250, 1),
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        backgroundColor: Color.fromRGBO(35, 35, 35, 1),
+      ),
+      themeMode: ThemeMode.dark,
       home: ImageGenerator(),
       debugShowCheckedModeBanner: false,
     );

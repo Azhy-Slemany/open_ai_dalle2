@@ -1,36 +1,47 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:open_ai_dalle2/models/generated_image.dart';
 import 'package:open_ai_dalle2/requests.dart';
 import 'package:open_ai_dalle2/file_operations.dart';
+import 'package:open_ai_dalle2/constants.dart' as consts;
 
 class DisplayImages extends StatefulWidget {
   const DisplayImages(
-      {Key? key, required this.generatedImage, required this.prompt})
+      {Key? key,
+      required this.generatedImage,
+      required this.placeholders,
+      required this.prompt,
+      required this.scrollValue})
       : super(key: key);
 
   final GeneratedImage generatedImage;
+  final List<String>? placeholders;
   final String prompt;
+  final double scrollValue;
 
   @override
   State<DisplayImages> createState() =>
-      _DisplayImagesState(generatedImage, prompt);
+      _DisplayImagesState(generatedImage, placeholders, prompt, scrollValue);
 }
 
 class _DisplayImagesState extends State<DisplayImages>
     with TickerProviderStateMixin {
-  _DisplayImagesState(this.gImage, this.prompt);
+  _DisplayImagesState(
+      this.gImage, this.placeholders, this.prompt, this.scrollValue);
 
   final GeneratedImage gImage;
   final String prompt;
-  final ScrollController _scrollController = ScrollController();
-  List<String>? placeholders;
+  final double scrollValue;
+  bool scrollSetToPrevious = false;
+  late ScrollController _scrollController =
+      ScrollController(initialScrollOffset: scrollValue);
+  final List<String>? placeholders;
   late AnimationController placeholderAnimationController;
   bool isSaving = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     placeholderAnimationController =
@@ -47,7 +58,18 @@ class _DisplayImagesState extends State<DisplayImages>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Display Images')),
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: AppBar(
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: consts.whiteOrBlack(),
+        ),
+        title: Text(
+            prompt.length > 20 ? prompt.substring(0, 20) + '...' : prompt,
+            style: TextStyle(color: consts.whiteOrBlack())),
+        elevation: 0.0,
+        backgroundColor: Colors.transparent,
+      ),
       body: Directionality(
           textDirection: TextDirection.ltr,
           child: Hero(
@@ -122,18 +144,23 @@ class _DisplayImagesState extends State<DisplayImages>
             ),
             InkWell(
               child: Container(
-                decoration: BoxDecoration(color: Colors.black87),
+                //decoration: BoxDecoration(color: Colors.black87),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
                         padding: EdgeInsets.all(10),
                         child: isSaving
-                            ? CircularProgressIndicator()
+                            ? Container(
+                                height: 25,
+                                padding: EdgeInsets.all(5),
+                                child: LoadingIndicator(
+                                    indicatorType:
+                                        Indicator.ballScaleRippleMultiple))
                             : Text(
                                 'Save',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
+                                    /*color: Colors.white,*/ fontSize: 20),
                               )),
                   ],
                 ),
