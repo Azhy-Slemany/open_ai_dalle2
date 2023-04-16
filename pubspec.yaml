@@ -36,15 +36,24 @@ dependencies:
   shared_preferences:
   flutter_zoom_drawer:
 
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.17.0
+  flutter_kurdish_localization: ^1.0.0
+
+  image_picker:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/images/placeholders/
+    - assets/images/
 
   # fonts:
   #   - family: Schyler

@@ -4,6 +4,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:open_ai_dalle2/models/generated_image.dart';
 import 'package:open_ai_dalle2/requests.dart';
 import 'package:open_ai_dalle2/file_operations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:open_ai_dalle2/constants.dart' as consts;
 
 class DisplayImages extends StatefulWidget {
@@ -38,6 +39,7 @@ class _DisplayImagesState extends State<DisplayImages>
       ScrollController(initialScrollOffset: scrollValue);
   final List<String>? placeholders;
   late AnimationController placeholderAnimationController;
+  late Animation<double> placeholderAnimation;
   bool isSaving = false;
 
   @override
@@ -45,8 +47,12 @@ class _DisplayImagesState extends State<DisplayImages>
     super.initState();
 
     placeholderAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    placeholderAnimationController.repeat(reverse: true);
+        AnimationController(vsync: this, duration: Duration(seconds: 1))
+          ..repeat(reverse: true, min: 0.05, max: .1);
+    placeholderAnimation = CurvedAnimation(
+      parent: placeholderAnimationController,
+      curve: Curves.easeIn,
+    );
   }
 
   @override
@@ -135,57 +141,68 @@ class _DisplayImagesState extends State<DisplayImages>
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
         contentPadding: EdgeInsets.zero,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-            ),
-            InkWell(
-              child: Container(
-                //decoration: BoxDecoration(color: Colors.black87),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.all(10),
-                        child: isSaving
-                            ? Container(
-                                height: 25,
-                                padding: EdgeInsets.all(5),
-                                child: LoadingIndicator(
-                                  indicatorType:
-                                      Indicator.ballScaleRippleMultiple,
-                                  colors: [Theme.of(context).indicatorColor],
-                                ))
-                            : Text(
-                                'Save',
-                                style: TextStyle(
-                                    /*color: Colors.white,*/ fontSize: 20),
-                              )),
-                  ],
-                ),
-              ),
-              onTap: () async {
-                setState(() {
-                  isSaving = true;
-                });
-                bool isSaved = await FileOperations.saveImage(imageUrl, prompt);
-                setState(() {
-                  isSaving = false;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(isSaved
-                        ? 'Image saved successfully'
-                        : 'Error: Image could not be saved'),
+        content: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
+            padding: EdgeInsets.all(10),
+            height: 50,
+            width: 50,
+            child: LoadingIndicator(
+                indicatorType: Indicator.ballScaleRippleMultiple,
+                colors: [Theme.of(context).indicatorColor]),
+          ),
+          imageBuilder: (context, image) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image(image: image),
+              InkWell(
+                child: Container(
+                  //decoration: BoxDecoration(color: Colors.black87),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.all(10),
+                          child: isSaving
+                              ? Container(
+                                  height: 25,
+                                  padding: EdgeInsets.all(5),
+                                  child: LoadingIndicator(
+                                    indicatorType:
+                                        Indicator.ballScaleRippleMultiple,
+                                    colors: [Theme.of(context).indicatorColor],
+                                  ))
+                              : Text(
+                                  AppLocalizations.of(context)!.save,
+                                  style: TextStyle(
+                                      /*color: Colors.white,*/ fontSize: 20),
+                                )),
+                    ],
                   ),
-                );
-                Navigator.pop(context, 'Cancel');
-              },
-            )
-          ],
+                ),
+                onTap: () async {
+                  if (isSaving) return;
+                  setState(() {
+                    isSaving = true;
+                  });
+                  bool isSaved =
+                      await FileOperations.saveImage(imageUrl, prompt);
+                  setState(() {
+                    isSaving = false;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isSaved
+                          ? 'Image saved successfully'
+                          : 'Error: Image could not be saved'),
+                    ),
+                  );
+                  Navigator.pop(context, 'Cancel');
+                },
+              )
+            ],
+          ),
         ),
       );
     });

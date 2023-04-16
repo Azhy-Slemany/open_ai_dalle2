@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:open_ai_dalle2/constants.dart';
 import 'package:open_ai_dalle2/models/generated_image.dart';
@@ -19,6 +20,89 @@ Future<GeneratedImage> generateImage(String prompt,
   var result = jsonDecode(response.body);
 
   return GeneratedImage.fromJson(result);
+
+  /*if (response.statusCode == 200) {
+    print('Success');
+    return GeneratedImage.fromJson(result);
+  } else if (response.statusCode == 400) {
+    print('Failed');
+    if (result['error']['code'] == 'billing_hard_limit_reached') {
+      return GeneratedImage.fromJson(result);
+    }
+  }*/
+}
+
+Future<GeneratedImage> generateEditedImage(String prompt, XFile image,
+    {String? mask, int n = 1, String size = '1024x1024', keyIndex = 0}) async {
+  var body = {
+    'prompt': prompt,
+    'image': image.path,
+    'n': n.toString(),
+    'size': size
+  };
+  if (mask != null) {
+    body['mask'] = mask;
+  }
+
+  var request = http.MultipartRequest(
+      'POST', Uri.parse('https://api.openai.com/v1/images/edits'));
+  request.fields.addAll(body);
+
+  var imageBytes = http.MultipartFile.fromBytes(
+    'image',
+    await image.readAsBytes(),
+    filename: image.path.split('/').last,
+  );
+  request.files.add(imageBytes);
+
+  request.headers.addAll({
+    'Authorization': 'Bearer ${KEYS[keyIndex]}',
+    "Content-Type": "application/json"
+  });
+
+  var result = await request.send();
+  var response = await http.Response.fromStream(result);
+
+  return GeneratedImage.fromJson(jsonDecode(response.body));
+
+  /*if (response.statusCode == 200) {
+    print('Success');
+    return GeneratedImage.fromJson(result);
+  } else if (response.statusCode == 400) {
+    print('Failed');
+    if (result['error']['code'] == 'billing_hard_limit_reached') {
+      return GeneratedImage.fromJson(result);
+    }
+  }*/
+}
+
+Future<GeneratedImage> generateImageVariations(XFile image,
+    {String? mask, int n = 1, String size = '1024x1024', keyIndex = 0}) async {
+  var body = {'image': image.path, 'n': n.toString(), 'size': size};
+  if (mask != null) {
+    body['mask'] = mask;
+  }
+
+  var request = http.MultipartRequest(
+      'POST', Uri.parse('https://api.openai.com/v1/images/variations'));
+  request.fields.addAll(body);
+
+  var imageBytes = http.MultipartFile.fromBytes(
+    'image',
+    await image.readAsBytes(),
+    filename: image.path.split('/').last,
+  );
+  request.files.add(imageBytes);
+
+  request.headers.addAll({
+    'Authorization': 'Bearer ${KEYS[keyIndex]}',
+    "Content-Type": "application/json"
+  });
+
+  var result = await request.send();
+  var response = await http.Response.fromStream(result);
+
+  return GeneratedImage.fromJson(jsonDecode(response.body));
 
   /*if (response.statusCode == 200) {
     print('Success');

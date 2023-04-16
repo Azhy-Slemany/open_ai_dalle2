@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:open_ai_dalle2/animations.dart';
@@ -11,21 +14,22 @@ import 'package:open_ai_dalle2/requests.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:open_ai_dalle2/constants.dart' as consts;
 
-class ImageGenerator extends StatefulWidget {
-  ImageGenerator();
+class ImageEditor extends StatefulWidget {
+  ImageEditor();
 
-  State<ImageGenerator> createState() => _ImageGeneratorState();
+  State<ImageEditor> createState() => _ImageEditorState();
 }
 
-class _ImageGeneratorState extends State<ImageGenerator>
+class _ImageEditorState extends State<ImageEditor>
     with TickerProviderStateMixin {
-  _ImageGeneratorState();
+  _ImageEditorState();
 
   final TextEditingController _promptController = TextEditingController();
   int imageCount = 1;
   final ScrollController _scrollController = ScrollController();
   late AnimationController placeholderAnimationController;
   late final Animation<double> placeholderAnimation;
+  XFile? image, mask;
 
   GeneratedImage? result;
   List<String>? placeholders;
@@ -41,6 +45,9 @@ class _ImageGeneratorState extends State<ImageGenerator>
       parent: placeholderAnimationController,
       curve: Curves.easeIn,
     );
+
+    image = null;
+    mask = null;
   }
 
   @override
@@ -56,12 +63,78 @@ class _ImageGeneratorState extends State<ImageGenerator>
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: CustomAppBar(AppLocalizations.of(context)!.imageGenerator),
+        appBar: CustomAppBar(AppLocalizations.of(context)!.imageEditor),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               children: [
+                Container(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: (() async {
+                          ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery);
+
+                          setState(() {
+                            this.image = image;
+                          });
+                        }),
+                        child: Text(AppLocalizations.of(context)!.chooseImage)),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          shape: BoxShape.rectangle),
+                      margin: EdgeInsets.all(10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: this.image == null
+                            ? Image.asset(Images.IMAGE_IMAGE,
+                                color: consts.whiteOrBlack())
+                            : Image.file(
+                                File(this.image!.path),
+                              ),
+                      ),
+                    ),
+                  ],
+                )),
+                Container(
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: (() async {
+                          ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery);
+
+                          setState(() {
+                            this.mask = image;
+                          });
+                        }),
+                        child: Text(AppLocalizations.of(context)!.chooseMask)),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          shape: BoxShape.rectangle),
+                      margin: EdgeInsets.all(10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: this.mask == null
+                            ? Image.asset(Images.IMAGE_IMAGE,
+                                color: consts.whiteOrBlack())
+                            : Image.file(
+                                File(this.mask!.path),
+                              ),
+                      ),
+                    ),
+                  ],
+                )),
                 Container(
                   padding: EdgeInsets.all(10),
                   child: TextField(
@@ -115,9 +188,16 @@ class _ImageGeneratorState extends State<ImageGenerator>
                           margin: EdgeInsets.all(10),
                           child: ElevatedButton(
                             onPressed: () async {
-                              final prompt = _promptController.text;
+                              if (this.image == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            AppLocalizations.of(context)!
+                                                .pleaseSelectAnImage)));
+                                return;
+                              }
 
-                              //validate both prompt and imageCount to check if they follow the rules
+                              final prompt = _promptController.text;
                               if (prompt.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -136,20 +216,6 @@ class _ImageGeneratorState extends State<ImageGenerator>
                                 return;
                               }
 
-                              /*if (imageCount == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be an integer')));
-                                return;
-                              }
-                
-                              if (imageCount < 1 || imageCount > 10) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be between 1 and 10')));
-                                return;
-                              }*/
-
                               setState(() {
                                 generating = true;
                                 placeholders = Images.getRandomPlaceholders();
@@ -157,7 +223,7 @@ class _ImageGeneratorState extends State<ImageGenerator>
 
                               GeneratedImage result =
                                   await //generateImageForTest(imageCount);
-                                  generateImage(prompt,
+                                  generateEditedImage(prompt, image!,
                                       n: imageCount, keyIndex: 4);
 
                               setState(() {

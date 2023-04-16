@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:open_ai_dalle2/animations.dart';
@@ -11,21 +14,21 @@ import 'package:open_ai_dalle2/requests.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:open_ai_dalle2/constants.dart' as consts;
 
-class ImageGenerator extends StatefulWidget {
-  ImageGenerator();
+class VariationGenerator extends StatefulWidget {
+  VariationGenerator();
 
-  State<ImageGenerator> createState() => _ImageGeneratorState();
+  State<VariationGenerator> createState() => _VariationGeneratorState();
 }
 
-class _ImageGeneratorState extends State<ImageGenerator>
+class _VariationGeneratorState extends State<VariationGenerator>
     with TickerProviderStateMixin {
-  _ImageGeneratorState();
+  _VariationGeneratorState();
 
-  final TextEditingController _promptController = TextEditingController();
   int imageCount = 1;
   final ScrollController _scrollController = ScrollController();
   late AnimationController placeholderAnimationController;
   late final Animation<double> placeholderAnimation;
+  XFile? image;
 
   GeneratedImage? result;
   List<String>? placeholders;
@@ -41,12 +44,13 @@ class _ImageGeneratorState extends State<ImageGenerator>
       parent: placeholderAnimationController,
       curve: Curves.easeIn,
     );
+
+    image = null;
   }
 
   @override
   void dispose() {
     placeholderAnimationController.dispose();
-    this._promptController.dispose();
     this._scrollController.dispose();
 
     super.dispose();
@@ -56,21 +60,45 @@ class _ImageGeneratorState extends State<ImageGenerator>
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: CustomAppBar(AppLocalizations.of(context)!.imageGenerator),
+        appBar: CustomAppBar(AppLocalizations.of(context)!.variationsGenerator),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(10),
-                  child: TextField(
-                    controller: _promptController,
-                    decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.prompt,
-                        hintText: 'A robot playing chess with an alien'),
-                  ),
-                ),
+                    child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: (() async {
+                          ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery);
+
+                          setState(() {
+                            this.image = image;
+                          });
+                        }),
+                        child: Text(AppLocalizations.of(context)!.chooseImage)),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          shape: BoxShape.rectangle),
+                      margin: EdgeInsets.all(10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: this.image == null
+                            ? Image.asset(Images.IMAGE_IMAGE,
+                                color: consts.whiteOrBlack())
+                            : Image.file(
+                                File(this.image!.path),
+                              ),
+                      ),
+                    ),
+                  ],
+                )),
                 Container(
                   margin: EdgeInsets.only(top: 10, bottom: 10),
                   decoration: BoxDecoration(
@@ -115,40 +143,14 @@ class _ImageGeneratorState extends State<ImageGenerator>
                           margin: EdgeInsets.all(10),
                           child: ElevatedButton(
                             onPressed: () async {
-                              final prompt = _promptController.text;
-
-                              //validate both prompt and imageCount to check if they follow the rules
-                              if (prompt.isEmpty) {
+                              if (this.image == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
                                             AppLocalizations.of(context)!
-                                                .promptCannotBeEmpty)));
+                                                .pleaseSelectAnImage)));
                                 return;
                               }
-
-                              if (prompt.length >= 1000) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(AppLocalizations.of(
-                                                context)!
-                                            .promptCannotBeMoreThan1000Chars)));
-                                return;
-                              }
-
-                              /*if (imageCount == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be an integer')));
-                                return;
-                              }
-                
-                              if (imageCount < 1 || imageCount > 10) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be between 1 and 10')));
-                                return;
-                              }*/
 
                               setState(() {
                                 generating = true;
@@ -157,7 +159,7 @@ class _ImageGeneratorState extends State<ImageGenerator>
 
                               GeneratedImage result =
                                   await //generateImageForTest(imageCount);
-                                  generateImage(prompt,
+                                  generateImageVariations(image!,
                                       n: imageCount, keyIndex: 4);
 
                               setState(() {
@@ -197,7 +199,7 @@ class _ImageGeneratorState extends State<ImageGenerator>
                               builder: (context) => DisplayImages(
                                   generatedImage: result!,
                                   placeholders: placeholders,
-                                  prompt: _promptController.text,
+                                  prompt: 'Image Variations',
                                   scrollValue: _scrollController.offset)));
                       },
                       child: Card(

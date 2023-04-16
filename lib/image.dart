@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Images {
+  static const String IMAGE_IMAGE = 'assets/images/image.png';
+
   static const String PLACEHOLDER = 'assets/images/placeholders/';
   static const String IMAGE_BIRD = PLACEHOLDER + 'bird.png';
   static List<String> birdImageList = [IMAGE_BIRD];
@@ -36,6 +38,7 @@ class Images {
   static List<List<String>> allPlaceHolders = [];
 
   static List<String> get getImages => [
+        IMAGE_IMAGE,
         IMAGE_BIRD,
         IMAGE_ANGRY_BIRD,
         IMAGE_ANGRY_BIRD_2,
