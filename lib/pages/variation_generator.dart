@@ -59,8 +59,34 @@ class _VariationGeneratorState extends State<VariationGenerator>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: CustomAppBar(AppLocalizations.of(context)!.variationsGenerator),
+        appBar: CustomAppBar(AppLocalizations.of(context)!.variationsGenerator,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.question_mark),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                        title: Text(AppLocalizations.of(context)!.help),
+                        content: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: consts.whiteOrBlack(), width: 0.1)),
+                            height: 200,
+                            padding: EdgeInsets.all(10),
+                            child: ListView(children: [
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .variationsGeneratorHelp,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ]))),
+                  );
+                },
+              )
+            ]),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

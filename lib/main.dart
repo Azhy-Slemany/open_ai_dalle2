@@ -16,6 +16,12 @@ StreamController<String> streamController = StreamController();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  //decode the keys before everything
+  String decodedString = decodeString(KEYS_ENCODED);
+  for (int i = 0; i < decodedString.length; i += 51) {
+    KEYS.add(decodedString.substring(i, i + 51));
+  }
+
   //get shared preferences
   var prefs = await SharedPreferences.getInstance();
 

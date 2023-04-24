@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -35,17 +37,19 @@ String translateErrorMessage(String errorMessage, BuildContext context) {
   } else if (errorMessage == 'Engine is overloaded') {
     return AppLocalizations.of(context)!.engine_is_overloaded;
   } else {
-    return AppLocalizations.of(context)!.unknown_error;
+    return errorMessage;
   }
 }
 
-const KEYS = [
-  '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',
-  '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',
-  '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',
-  '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',
-  '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'
-];
+const KEYS_ENCODED =
+    "c2stbUVyeVRWY01Kd21yTHBhNmwzY2pUM0JsYmtGSmhSNXN2ZWV3MkhlZUszdUdCdDdTc2staU5NQ0tFZEo5aXBndXpxVnhxSHhUM0JsYmtGSmNtdmVEMnBkVEJqMWZZc2Zva3Jpc2stc2V0MEhGQ2pHQndWczZHRFVWRk9UM0JsYmtGSkZRVWFHTDh6cGNNOVhMRDNmS0N6c2stdlZWOVFwQVdyVkVwT3VlMDlWTnZUM0JsYmtGSjBlbWxmb3dDTldDUWVGOXZFbkNsc2stY3JZV1NzVk80YWZpN29ET1FmQjZUM0JsYmtGSllmcW01aUw1enNybmg1d1BNdE1S";
+const KEY_LENGTH = 51;
+
+String decodeString(String input) {
+  return utf8.decode(base64Decode(input));
+}
+
+List<String> KEYS = [];
 
 const PREFS_THEME_MODE_LIGHT = 'themeMode';
 const PREFS_LANGUAGE = 'language';

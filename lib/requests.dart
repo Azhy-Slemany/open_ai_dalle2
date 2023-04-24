@@ -137,7 +137,7 @@ GeneratedImage handleResponseResult(http.Response response) {
     return GeneratedImage.fromJson(result);
 
   var errorCode = result['error']['code'];
-  var errorMessage = '';
+  var errorMessage = result['error']['message'];
 
   if (response.statusCode == 200) return GeneratedImage.fromJson(result);
   if (errorCode == 'invalid_api_key')
@@ -146,8 +146,6 @@ GeneratedImage handleResponseResult(http.Response response) {
     errorMessage = 'Billing hard limit reached';
   else if (errorCode == 'rate_limit_exceeded')
     errorMessage = 'Choose a smaller amount of images';
-  else
-    errorMessage = 'Unknown error occurred';
 
   return GeneratedImage(images: [], isCreated: false, error: errorMessage);
 }

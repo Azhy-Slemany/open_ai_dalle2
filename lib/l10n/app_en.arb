@@ -29,6 +29,11 @@
     "rate_limit_exceeded": "Please use a smaller number of images to generate.",
     "engine_is_overloaded": "The engine is overloaded, please try again later.",
     "incorrect_api_key": "Current key is invalid, let's try to use another key.",
-    "unknown_error": "Unknown error occured, please try again later."
+    "unknown_error": "Unknown error occured, please try again later.",
 
+    "help": "Help",
+
+    "imageGeneratorHelp": "In this page you can generate images from text input, you can generate multiple images with a given text input. You can use it freely but only for a limited number of times, and if you want to use it more than that, you can contact use the original website to get full functionalities of the model.",
+    "imageEditorHelp": "In this page you can edit an image with a given text input, you can edit an image with a given text input. The image must be square, and of type (.PNG) which the DALLE-2 api requires, and also it's size must be smaller than 4 MB. You can also provide an additional image (mask) whose fully transparent areas (e.g. where alpha is zero) indicate where image should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as image. You can use it freely but only for a limited number of times, and if you want to use it more than that, you can contact use the original website to get full functionalities of the model.",
+    "variationsGeneratorHelp": "In this page you can generate variations of an image, you can generate multiple variations of an image. The image must be square, and of type (.PNG) which the DALLE-2 api requires, and also it's size must be smaller than 4 MB. You can use it freely but only for a limited number of times, and if you want to use it more than that, you can contact use the original website to get full functionalities of the model."
   }

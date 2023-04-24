@@ -76,62 +76,59 @@ class _DisplayImagesState extends State<DisplayImages>
         elevation: 0.0,
         backgroundColor: Colors.transparent,
       ),
-      body: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Hero(
-            tag: 'imagesGridview',
-            child: GridView.builder(
-              controller: _scrollController,
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: gImage.images.length,
-              itemBuilder: (context, index) => GestureDetector(
-                onTap: () => showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => saveDialog(
-                    gImage.images[index],
-                    prompt,
-                  ),
-                ),
-                child: CachedNetworkImage(
-                    imageUrl: gImage.images[index],
-                    fit: BoxFit.cover,
-                    progressIndicatorBuilder: (context, url, progress) =>
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  right: BorderSide(color: Colors.black))),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                    height: 150,
-                                    width: 150,
-                                    padding: EdgeInsets.all(20),
-                                    child: FadeTransition(
-                                      opacity: placeholderAnimationController,
-                                      child: Image.asset(
-                                        placeholders![index],
-                                      ),
-                                    )),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 2),
-                                  child: LinearProgressIndicator(
-                                    value: progress.progress,
-                                    minHeight: 0.9,
-                                    color: Colors.black,
-                                    backgroundColor: Colors.grey,
-                                  ),
-                                ),
-                              ]),
-                        )),
-              ),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1,
+      body: Hero(
+        tag: 'imagesGridview',
+        child: GridView.builder(
+          controller: _scrollController,
+          physics: BouncingScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: gImage.images.length,
+          itemBuilder: (context, index) => GestureDetector(
+            onTap: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => saveDialog(
+                gImage.images[index],
+                prompt,
               ),
             ),
-          )),
+            child: CachedNetworkImage(
+                imageUrl: gImage.images[index],
+                fit: BoxFit.cover,
+                progressIndicatorBuilder: (context, url, progress) => Container(
+                      decoration: BoxDecoration(
+                          border:
+                              Border(right: BorderSide(color: Colors.black))),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                                height: 150,
+                                width: 150,
+                                padding: EdgeInsets.all(20),
+                                child: FadeTransition(
+                                  opacity: placeholderAnimationController,
+                                  child: Image.asset(
+                                    placeholders![index],
+                                  ),
+                                )),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 2),
+                              child: LinearProgressIndicator(
+                                value: progress.progress,
+                                minHeight: 0.9,
+                                color: Colors.black,
+                                backgroundColor: Colors.grey,
+                              ),
+                            ),
+                          ]),
+                    )),
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1,
+          ),
+        ),
+      ),
     );
   }
 

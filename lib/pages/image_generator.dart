@@ -55,8 +55,34 @@ class _ImageGeneratorState extends State<ImageGenerator>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).backgroundColor,
-        appBar: CustomAppBar(AppLocalizations.of(context)!.imageGenerator),
+        appBar: CustomAppBar(AppLocalizations.of(context)!.imageGenerator,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.question_mark),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                        title: Text(AppLocalizations.of(context)!.help),
+                        content: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: consts.whiteOrBlack(), width: 0.1)),
+                            height: 200,
+                            padding: EdgeInsets.all(10),
+                            child: ListView(children: [
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .imageGeneratorHelp,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ]))),
+                  );
+                },
+              )
+            ]),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -135,20 +161,6 @@ class _ImageGeneratorState extends State<ImageGenerator>
                                             .promptCannotBeMoreThan1000Chars)));
                                 return;
                               }
-
-                              /*if (imageCount == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be an integer')));
-                                return;
-                              }
-                
-                              if (imageCount < 1 || imageCount > 10) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Number of images must be between 1 and 10')));
-                                return;
-                              }*/
 
                               setState(() {
                                 generating = true;
