@@ -23,5 +23,12 @@
     "promptCannotBeMoreThan1000Chars": "Prompt cannot be more than 1000 chars",
     "imageGeneratorShortText": "Generate images from text input, you can generate multiple images with a given text input.",
     "imageEditorShortText": "Edit an image with a given text input, you can edit an image with a given text input.",
-    "variationsGeneratorShortText": "Generate variations of an image, you can generate multiple variations of an image."
+    "variationsGeneratorShortText": "Generate variations of an image, you can generate multiple variations of an image.",
+    
+    "billing_hard_limit_reached": "One of the keys is no longer working, let's try to use another key.",
+    "rate_limit_exceeded": "Please use a smaller number of images to generate.",
+    "engine_is_overloaded": "The engine is overloaded, please try again later.",
+    "incorrect_api_key": "Current key is invalid, let's try to use another key.",
+    "unknown_error": "Unknown error occured, please try again later."
+
   }

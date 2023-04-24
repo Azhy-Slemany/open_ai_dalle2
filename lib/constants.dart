@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 bool isDarkMode = true;
 String language = 'ku';
+int keyIndexToUse = 0;
 
 String makeStreamValue() {
   return 'theme=' + isDarkMode.toString() + ';lang=' + language;
@@ -23,8 +25,22 @@ Color menuBackgroundColor() {
       : Color.fromRGBO(240, 240, 240, 1);
 }
 
+String translateErrorMessage(String errorMessage, BuildContext context) {
+  if (errorMessage == 'Incorrect API key') {
+    return AppLocalizations.of(context)!.incorrect_api_key;
+  } else if (errorMessage == 'Billing hard limit reached') {
+    return AppLocalizations.of(context)!.billing_hard_limit_reached;
+  } else if (errorMessage == 'Choose a smaller amount of images') {
+    return AppLocalizations.of(context)!.rate_limit_exceeded;
+  } else if (errorMessage == 'Engine is overloaded') {
+    return AppLocalizations.of(context)!.engine_is_overloaded;
+  } else {
+    return AppLocalizations.of(context)!.unknown_error;
+  }
+}
+
 const KEYS = [
-  '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',
+  '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',
   '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',
   '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',
   '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',

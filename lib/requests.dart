@@ -1,10 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'package:open_ai_dalle2/constants.dart';
 import 'package:open_ai_dalle2/models/generated_image.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<GeneratedImage> generateImage(String prompt,
     {int n = 1, String size = '1024x1024', keyIndex = 0}) async {
@@ -17,19 +20,21 @@ Future<GeneratedImage> generateImage(String prompt,
       body: jsonEncode({'prompt': prompt, 'n': n, 'size': size}),
       encoding: Encoding.getByName('utf-8'));
 
-  var result = jsonDecode(response.body);
-
-  return GeneratedImage.fromJson(result);
-
-  /*if (response.statusCode == 200) {
-    print('Success');
-    return GeneratedImage.fromJson(result);
-  } else if (response.statusCode == 400) {
-    print('Failed');
-    if (result['error']['code'] == 'billing_hard_limit_reached') {
-      return GeneratedImage.fromJson(result);
+  var result = handleResponseResult(response);
+  if (result.error == 'Incorrect API key' ||
+      result.error == 'Billing hard limit reached') {
+    if (keyIndexToUse < KEYS.length - 1) {
+      keyIndexToUse++;
+      return generateImage(prompt, n: n, size: size, keyIndex: keyIndexToUse);
+    } else {
+      keyIndexToUse = 0;
+      return GeneratedImage(
+          images: [],
+          isCreated: false,
+          error: 'Unfortunately, keys are expired');
     }
-  }*/
+  }
+  return result;
 }
 
 Future<GeneratedImage> generateEditedImage(String prompt, XFile image,
@@ -60,20 +65,25 @@ Future<GeneratedImage> generateEditedImage(String prompt, XFile image,
     "Content-Type": "application/json"
   });
 
-  var result = await request.send();
-  var response = await http.Response.fromStream(result);
+  var requestResult = await request.send();
+  var response = await http.Response.fromStream(requestResult);
 
-  return GeneratedImage.fromJson(jsonDecode(response.body));
-
-  /*if (response.statusCode == 200) {
-    print('Success');
-    return GeneratedImage.fromJson(result);
-  } else if (response.statusCode == 400) {
-    print('Failed');
-    if (result['error']['code'] == 'billing_hard_limit_reached') {
-      return GeneratedImage.fromJson(result);
+  var result = handleResponseResult(response);
+  if (result.error == 'Incorrect API key' ||
+      result.error == 'Billing hard limit reached') {
+    if (keyIndexToUse < KEYS.length - 1) {
+      keyIndexToUse++;
+      return generateEditedImage(prompt, image,
+          mask: mask, n: n, size: size, keyIndex: keyIndexToUse);
+    } else {
+      keyIndexToUse = 0;
+      return GeneratedImage(
+          images: [],
+          isCreated: false,
+          error: 'Unfortunately, keys are expired');
     }
-  }*/
+  }
+  return result;
 }
 
 Future<GeneratedImage> generateImageVariations(XFile image,
@@ -99,20 +109,47 @@ Future<GeneratedImage> generateImageVariations(XFile image,
     "Content-Type": "application/json"
   });
 
-  var result = await request.send();
-  var response = await http.Response.fromStream(result);
+  var requestResult = await request.send();
+  var response = await http.Response.fromStream(requestResult);
 
-  return GeneratedImage.fromJson(jsonDecode(response.body));
-
-  /*if (response.statusCode == 200) {
-    print('Success');
-    return GeneratedImage.fromJson(result);
-  } else if (response.statusCode == 400) {
-    print('Failed');
-    if (result['error']['code'] == 'billing_hard_limit_reached') {
-      return GeneratedImage.fromJson(result);
+  var result = handleResponseResult(response);
+  if (result.error == 'Incorrect API key' ||
+      result.error == 'Billing hard limit reached') {
+    if (keyIndexToUse < KEYS.length - 1) {
+      keyIndexToUse++;
+      return generateImageVariations(image,
+          mask: mask, n: n, size: size, keyIndex: keyIndexToUse);
+    } else {
+      keyIndexToUse = 0;
+      return GeneratedImage(
+          images: [],
+          isCreated: false,
+          error: 'Unfortunately, keys are expired');
     }
-  }*/
+  }
+  return result;
+}
+
+GeneratedImage handleResponseResult(http.Response response) {
+  var result = jsonDecode(response.body);
+
+  if (!(result as Map<String, dynamic>).containsKey('error'))
+    return GeneratedImage.fromJson(result);
+
+  var errorCode = result['error']['code'];
+  var errorMessage = '';
+
+  if (response.statusCode == 200) return GeneratedImage.fromJson(result);
+  if (errorCode == 'invalid_api_key')
+    errorMessage = 'Incorrect API key';
+  else if (errorCode == 'billing_hard_limit_reached')
+    errorMessage = 'Billing hard limit reached';
+  else if (errorCode == 'rate_limit_exceeded')
+    errorMessage = 'Choose a smaller amount of images';
+  else
+    errorMessage = 'Unknown error occurred';
+
+  return GeneratedImage(images: [], isCreated: false, error: errorMessage);
 }
 
 Future<GeneratedImage> generateImageForTest(int n) {

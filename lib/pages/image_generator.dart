@@ -158,25 +158,20 @@ class _ImageGeneratorState extends State<ImageGenerator>
                               GeneratedImage result =
                                   await //generateImageForTest(imageCount);
                                   generateImage(prompt,
-                                      n: imageCount, keyIndex: 4);
+                                      n: imageCount,
+                                      keyIndex: consts.keyIndexToUse);
 
                               setState(() {
                                 generating = false;
                                 this.result = result;
                               });
 
-                              /*if (result.isCreated) {
-                              print('succeeded');
-                              print(result.images);
-                            } else {
-                              print('failed');
-                              print(result.error);
-                            }*/
-
                               if (!result.isCreated) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'Failed to generate images, ${result.error}}')));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            consts.translateErrorMessage(
+                                                result.error!, context))));
                                 return;
                               }
                             },
