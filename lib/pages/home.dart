@@ -48,6 +48,17 @@ class _HomePageState extends State<HomePage> {
                 color: consts.whiteOrBlack(),
                 onPressed: () => _drawerController.toggle!(),
               ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Image(
+                    image: AssetImage('assets/images/ic_launcher.png'),
+                    width: 30,
+                    height: 30,
+                    color: consts.whiteOrBlack(),
+                  ),
+                ),
+              ],
               title: Text('DALL-E 2',
                   style: TextStyle(color: consts.whiteOrBlack())),
               backgroundColor: Colors.transparent,

@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
    
    <application
-        android:label="open_ai_dalle2"
+        android:label="DALLE-2"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
