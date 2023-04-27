@@ -42,7 +42,7 @@ String translateErrorMessage(String errorMessage, BuildContext context) {
 }
 
 const KEYS_ENCODED =
-    "c2sta0ZBU2pwZVNIbnRUVGpmWkZBOEpUM0JsYmtGSmNtSHBqb3NYMFpKNUVEYjl4c3NP";
+    "c2sta0ZBU2pwZVNIbnRUVGpmWkZBOEpUM0JsYmtGSmNtSHBqb3NYMFpKNUVEYjl4c3NPc2stbmdvMVM2Z1VzVUJwamtGMXJ4bEpUM0JsYmtGSlZXSXhlSzJ3WDhhWTFmdXdGdjdr";
 const KEY_LENGTH = 51;
 
 String decodeString(String input) {
